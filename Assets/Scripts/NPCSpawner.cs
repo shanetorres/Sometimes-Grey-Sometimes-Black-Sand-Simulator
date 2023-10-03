@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class NPCSpawner : MonoBehaviour
 {
@@ -13,17 +14,22 @@ public class NPCSpawner : MonoBehaviour
     bool npcs_can_spawn;
     bool npc_spawning;
     
-    int live_npcs = 0;
+    public int live_npcs = 0;
     Quaternion rot = Quaternion.Euler(0,0,0);
+    bool last_npc_can_spawn;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        npcs_can_spawn = true;
+        npcs_can_spawn = false;
+        last_npc_can_spawn = false;
+        npc_spawning = false;
 
         EventManager.StartListening("npcDestroyed", OnNPCDestroyed);
         EventManager.StartListening("AllConversationsHad", AllConversationsHadListener);
+        EventManager.StartListening("StopSpawningNPCs", StopSpawning);
+        StartCoroutine(SpawnWait());
     }
 
     // Update is called once per frame
@@ -33,8 +39,18 @@ public class NPCSpawner : MonoBehaviour
             if (live_npcs < max_npcs) {
                 StartCoroutine(SpawnNPC());
             }
-            
         }
+
+        if (last_npc_can_spawn && live_npcs == 0) {
+            SpawnLastNPC();
+            last_npc_can_spawn = false;
+        }
+    }
+
+    IEnumerator SpawnWait() {
+        Debug.Log("SPAWN WAIT");
+        yield return new WaitForSeconds(1.0f);
+        npcs_can_spawn = true;
     }
 
     IEnumerator SpawnNPC() {
@@ -47,11 +63,13 @@ public class NPCSpawner : MonoBehaviour
 
         Vector3 pos = GetRandomPointInsideCollider(spawn_areas[spawn_area].GetComponent<BoxCollider>());
         Instantiate(npc, pos, rot);
+        live_npcs++;
 
-        yield return new WaitForSeconds(2.0f);
+        float spawn_time = Random.Range(2.0f, 15.0f);
+        yield return new WaitForSeconds(spawn_time);
 
         npc_spawning = false;
-        live_npcs++;
+
 
     }
 
@@ -59,10 +77,8 @@ public class NPCSpawner : MonoBehaviour
         GameObject npc = npcs[6];
         // Vector3 distanceFromPlayer = new Vector3(0,5,-50);
         int spawn_index = GetClosestSpawnArea(player.transform);
-        Debug.Log("CLOSEST SPAWN AREA: " + spawn_index);
         Vector3 lastNPCSpawnPoint = GetRandomPointInsideCollider(spawn_areas[spawn_index].GetComponent<BoxCollider>());
-        Debug.Log("SPAWNING LAST NPC");
-        Debug.Log(lastNPCSpawnPoint);
+        GameObject.FindGameObjectWithTag("house").GetComponent<NavMeshObstacle>().enabled = true;
 
         Instantiate(npc, lastNPCSpawnPoint, rot);
     }
@@ -87,6 +103,11 @@ public class NPCSpawner : MonoBehaviour
         }
     }
 
+    void StopSpawning(Dictionary<string, object> message) {
+        Debug.Log("CALLED STOP SPAWNING!");
+        npcs_can_spawn = false;
+    }
+
     int GetClosestSpawnArea(Transform p_transform)
     {
         int tMin = 0;;
@@ -106,7 +127,7 @@ public class NPCSpawner : MonoBehaviour
 
     void AllConversationsHadListener(Dictionary<string, object> message) {
         npcs_can_spawn = false;
-        SpawnLastNPC();
+        last_npc_can_spawn = true;
         EventManager.StopListening("AllConversationsHad", AllConversationsHadListener);
     }
 }

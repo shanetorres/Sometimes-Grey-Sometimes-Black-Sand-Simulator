@@ -14,9 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SimpleSelectedItems:
     m_Keys:
+    - Assets/Characters/materials/male 3.mat
+    - Assets/Characters/prefabs/female_01.prefab
+    - Assets/Characters/prefabs/female_02.prefab
+    - Assets/Characters/prefabs/female_03.prefab
+    - Assets/Characters/prefabs/last_npc.prefab
+    - Assets/Characters/prefabs/male_01.prefab
+    - Assets/Characters/prefabs/male_02.prefab
+    - Assets/Characters/prefabs/male_03.prefab
+    - Assets/Characters/prefabs/overman_2.prefab
+    - Assets/Scenes/SampleScene.unity
     - Assets/Scripts/Conversation.cs
+    - Assets/Scripts/NPCAIController.cs
+    - Assets/Scripts/NPCSpawner.cs
     - 
-    m_Values: 0000
+    m_Values: 0000000000000000000000000000
   RevisionSummary: 
   ChangesSearchValue: 
   SelectedHistoryRevision: 

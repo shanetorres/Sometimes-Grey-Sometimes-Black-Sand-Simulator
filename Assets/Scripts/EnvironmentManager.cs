@@ -30,6 +30,8 @@ public class EnvironmentManager : MonoBehaviour
     bool overmanspawned;
     bool overman_spawn_nomatterwhat;
     bool house_despawn_nomatterwhat;
+    bool playing_loop;
+    AudioSource wind_audio;
 
     // Start is called before the first frame update
     void Start()
@@ -51,6 +53,8 @@ public class EnvironmentManager : MonoBehaviour
         overmanspawned = false;
         overman_spawn_nomatterwhat = false;
         house_despawn_nomatterwhat = false;
+        playing_loop = false;
+        wind_audio = wind.GetComponent<AudioSource>(); 
 
         // Vector4 color = new Vector4(.12f, .12f, .12f, 5f);
         // StartCoroutine(LerpTerrainColor(color, 5.0f));
@@ -59,6 +63,11 @@ public class EnvironmentManager : MonoBehaviour
         // StartCoroutine(LerpSkyColor(targetColor, 5.0f));
         
         // Debug.Log(terrain.terrainData.terrainLayers[0].diffuseRemapMin);
+        Color targetColor = new Color(0.1969117f, 0.2089766f, 0.2358491f);
+        StartCoroutine(LerpSkyColor(targetColor, 1.0f));
+        StartCoroutine(LerpAmbientColor(new Color(0.1603774f,0.1603774f,0.1603774f), new Color(0.1886792f,0.1886792f,0.1886792f), new Color(0.3207547f,0.3207547f,0.3207547f), 1f));
+        StartCoroutine(LerpFog(new Color(0,0,0), 0.05f, 1f));
+        StartCoroutine(LerpClouds(new Color (0.2169811f, 0.2169811f, 0.2169811f), 1f));
     }
 
     // Update is called once per frame
@@ -83,6 +92,16 @@ public class EnvironmentManager : MonoBehaviour
                 overmanspawned = true;
             }
         }
+
+        if (playing_loop) {
+            if (!wind_audio.isPlaying) {
+                wind_audio.clip = overman_song_loop;
+                wind_audio.Play();
+                wind_audio.loop = true;
+                
+                playing_loop = false;
+            }
+        }
     }
 
     void NpcActionListener(Dictionary<string, object> message) {
@@ -104,14 +123,14 @@ public class EnvironmentManager : MonoBehaviour
     }
 
     IEnumerator StartStorm() {
-        yield return new WaitForSeconds(15.0f);
+        yield return new WaitForSeconds(20.0f);
         StartCoroutine(StormNoise());
         yield return new WaitForSeconds(1.0f);
         Color targetColor = new Color(0.1969117f, 0.2089766f, 0.2358491f);
-        StartCoroutine(LerpSkyColor(targetColor, 30.0f));
-        StartCoroutine(LerpAmbientColor(new Color(0.1603774f,0.1603774f,0.1603774f), new Color(0.1886792f,0.1886792f,0.1886792f), new Color(0.3207547f,0.3207547f,0.3207547f), 20f));
-        StartCoroutine(LerpFog(new Color(0,0,0), 0.05f, 30f));
-        StartCoroutine(LerpClouds(new Color (0.2169811f, 0.2169811f, 0.2169811f), 30f));
+        StartCoroutine(LerpSkyColor(targetColor, 50.0f));
+        StartCoroutine(LerpAmbientColor(new Color(0.1603774f,0.1603774f,0.1603774f), new Color(0.1886792f,0.1886792f,0.1886792f), new Color(0.3207547f,0.3207547f,0.3207547f), 40f));
+        StartCoroutine(LerpFog(new Color(0,0,0), 0.05f, 50f));
+        StartCoroutine(LerpClouds(new Color (0.2169811f, 0.2169811f, 0.2169811f), 50f));
         StartCoroutine(BuildingsHandler());
         // yield return new WaitForSeconds(10.0f);
         EventManager.TriggerEvent("StartingStorm", null);
@@ -119,7 +138,7 @@ public class EnvironmentManager : MonoBehaviour
 
     IEnumerator StormNoise() {
         wind.GetComponent<AudioSource>().loop = false;
-        StartCoroutine(LerpVolume(.65f, 4.0f));
+        StartCoroutine(LerpVolume(.72f, 4.0f));
         wind.GetComponent<AudioSource>().PlayOneShot(storm_start);
         yield return new WaitForSeconds(80f);
         wind.GetComponent<AudioSource>().clip = storm_loop;
@@ -143,28 +162,27 @@ public class EnvironmentManager : MonoBehaviour
         StartCoroutine(LerpClouds(new Color (0.8584906f, 0.8129339f, 0.7491545f), 1f));
         Color targetColor = new Color(0.8784314f, 0.8666667f, 0.7647059f);
         StartCoroutine(LerpSkyColor(targetColor, 1f));
+        yield return new WaitForSeconds(240);
+        Application.Quit();
+
     }
 
     void EnteredOvermanRoom(Dictionary<string, object> message) {
         overman_door.GetComponent<Collider>().enabled = true;
-        StartCoroutine(LerpAmbientColor(new Color(0.9137f,0.9137f,0.9137f), new Color(0.8117647f,0.869943f,0.6127626f), new Color(0.9622642f,0.8901961f,0.7372549f), 2.5f));
+        StartCoroutine(LerpAmbientColor(new Color(0.9137f,0.9137f,0.9137f), new Color(0.8773585f,0.8773585f,0.8773585f), new Color(0.9622642f,0.8628902f,0.5546013f), 2.5f));
         StartCoroutine(LerpClouds(new Color (0.3301887f, 0.3301887f, 0.3301887f), 2.5f));
         Destroy(underroomlight);
         Destroy(entrancelight);
-        StartCoroutine(OvermanSong());
+        OvermanSong();
         
     }
 
-    IEnumerator OvermanSong() {
+    void OvermanSong() {
         wind.GetComponent<AudioSource>().loop = false;
         wind.GetComponent<AudioSource>().clip = overman_song_intro;
-        wind.GetComponent<AudioSource>().volume = .141f;
+        wind.GetComponent<AudioSource>().volume = .145f;
         wind.GetComponent<AudioSource>().Play();
-        yield return new WaitForSeconds(12.4f);
-        wind.GetComponent<AudioSource>().clip = overman_song_loop;
-        wind.GetComponent<AudioSource>().loop = true;
-        wind.GetComponent<AudioSource>().volume = .141f;
-        wind.GetComponent<AudioSource>().Play();
+        playing_loop = true;
     }
 
     IEnumerator BuildingsHandler() {
@@ -176,7 +194,7 @@ public class EnvironmentManager : MonoBehaviour
     }
 
     IEnumerator OvermanSpawnTimer() {
-        yield return new WaitForSeconds(90.0f);
+        yield return new WaitForSeconds(80.0f);
         overmancanspawn = true;
         yield return new WaitForSeconds(60.0f);
         overman_spawn_nomatterwhat = true;

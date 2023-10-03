@@ -14,6 +14,7 @@ TagManager:
   - wood
   - last_npc
   - stain
+  - house
   layers:
   - Default
   - TransparentFX

@@ -1704,7 +1704,7 @@ RectTransform:
   m_GameObject: {fileID: 5091817874970053489}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0.029405259}
-  m_LocalScale: {x: 0.0006999115, y: 0.00069432345, z: 0.0013216364}
+  m_LocalScale: {x: 0.00081189733, y: 0.00080541515, z: 0.0015330982}
   m_Children:
   - {fileID: 702239195719335426}
   - {fileID: 5171705505827025745}
@@ -1713,7 +1713,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0.013, y: 2.22}
+  m_AnchoredPosition: {x: 0.013, y: 2.245}
   m_SizeDelta: {x: 1201, y: 629}
   m_Pivot: {x: 0.02, y: 0.5}
 --- !u!223 &8993982626066026467
@@ -2311,7 +2311,7 @@ MonoBehaviour:
   npc_text: {fileID: 9015692518163983352}
   is_last_npc: 0
   is_overman: 0
-  house_destination: {fileID: 0}
+  house_destination: {fileID: 1177335413880612841, guid: 85c8b652f288e394fa0e0738d2fc50f4, type: 3}
   brush: {fileID: 0}
   brush_audio: {fileID: 0}
   npc_audio_source: {fileID: 1642826236023236328}
@@ -2321,6 +2321,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 77540525fd870d6498aef1aa00cc61b1, type: 3}
   - {fileID: 8300000, guid: 5ccc969b5544645408dec958cc288694, type: 3}
   talking_sound: {fileID: 8300000, guid: 0911aa2a1c5fa3c41acdeaf3170aa2fb, type: 3}
+  objecst_to_look_at: []
+  gender: female
+  destination_distance: 0
 --- !u!82 &1642826236023236328
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2333,7 +2336,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.684
+  m_Volume: 0.465
   m_Pitch: 1.24
   Loop: 0
   Mute: 0

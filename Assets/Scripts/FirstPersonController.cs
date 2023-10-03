@@ -153,6 +153,10 @@ namespace UnityStandardAssets.Characters.FirstPerson
                 StartCoroutine(LerpToMonitorPos(lastPos, 0.3f));
             }
 
+            if (Input.GetKeyDown(KeyCode.Escape)) {
+                Application.Quit();
+            }
+
             if (!sit_used || Input.GetKeyDown(KeyCode.E)) {
                 Ray rayOrigin1 = m_Camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
                 RaycastHit hit1;
@@ -246,6 +250,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             if (Vector3.Distance(gameObject.transform.position, conversing_npc.transform.position) > 3.0f || (player_npc_angle > 52.0f || player_npc_angle < -52.0f)) {
                 if (!offscreen_chat) {
                     offscreen_chat = true;
+                    Conversation.npc_gui_fading = false;
                     EventManager.TriggerEvent("TextOffscreen", 
                         new Dictionary<string, object> {
                             {"offscreen", true}
@@ -399,7 +404,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
 #if !MOBILE_INPUT
             // On standalone builds, walk/run speed is modified by a key press.
             // keep track of whether or not the character is walking or running
-            m_IsWalking = !Input.GetKey(KeyCode.LeftShift);
+            // m_IsWalking = !Input.GetKey(KeyCode.LeftShift);
+            m_IsWalking = true;
 #endif
             // set the desired speed to be walking or running
             speed = m_IsWalking ? m_WalkSpeed : m_RunSpeed;

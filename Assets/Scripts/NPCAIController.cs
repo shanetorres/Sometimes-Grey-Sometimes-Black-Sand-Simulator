@@ -39,11 +39,13 @@ public class NPCAIController : MonoBehaviour
     [SerializeField] AudioClip[] clips;
     [SerializeField] AudioClip talking_sound;
     [SerializeField] private GameObject[] objecst_to_look_at;
+    [SerializeField] string gender;
     Animator brush_animator;
     private bool doing_action;
     private float last_npc_destination_distance;
     private bool ignore_rotate_target;
     private float initial_volume;
+    public float destination_distance;
 
     //overman settings
     bool cleaning_stain;
@@ -58,6 +60,7 @@ public class NPCAIController : MonoBehaviour
     string animation_string = "";
     float animation_length;
     bool listening;
+    Vector3 inside_house_pos;
 
 
 
@@ -107,10 +110,11 @@ public class NPCAIController : MonoBehaviour
         time = Time.time;
         anim_wait_time = 10.0f;
         animating = false;
+
         
         if (!is_last_npc) {
-            Vector3 pos = GetRandomPointInsideCollider(m_Destination.GetComponent<BoxCollider>());
-            m_NavMeshAgent.SetDestination(pos);
+            inside_house_pos = GetRandomPointInsideCollider(house_destination.GetComponent<BoxCollider>());
+            m_NavMeshAgent.SetDestination(inside_house_pos);
             rotate_target = m_Destination;
         } else if (is_last_npc) {
             Debug.Log("in if: " + gameObject.name);
@@ -150,7 +154,6 @@ public class NPCAIController : MonoBehaviour
     {
         CheckRemainingDistance();
         SetNPCState();
-
         // convo_canvas.transform.LookAt(convo_canvas.transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
 
         if (in_conversation && !is_last_npc && !is_overman) {
@@ -181,12 +184,12 @@ public class NPCAIController : MonoBehaviour
                     case 0:
                         m_Animator.SetBool("scratching", true);
                         animation_string = "scratching";
-                        animation_length = 4.14f;
+                        animation_length = 3.5f;
                         break;
                     case 1:
                         m_Animator.SetBool("looking", true);
                         animation_string = "looking";
-                        animation_length = 4.14f;
+                        animation_length = 3.5f;
                         break;
                 }
             } else if (animating) {
@@ -194,6 +197,8 @@ public class NPCAIController : MonoBehaviour
                 if ((Time.time-anim_going_time) > animation_length) {
                     Debug.Log("MADE IT");
                     animating = false;
+                    m_Animator.SetBool("looking", false);
+                    m_Animator.SetBool("scratching", false);
                     m_Animator.SetBool(animation_string, false);
                     anim_wait_time = Random.Range(2, 20);
                     time = Time.time;
@@ -233,7 +238,7 @@ public class NPCAIController : MonoBehaviour
     }
 
     private void CheckRemainingDistance() {
-        if (m_NavMeshAgent.remainingDistance < 1.25f && !is_last_npc && !is_overman) {
+        if (!is_last_npc && !is_overman && Vector3.Distance(gameObject.transform.position, inside_house_pos) < 2.5f ) {
             EventManager.TriggerEvent("npcDestroyed", null);
             Debug.Log("Triggering event");
 
@@ -242,7 +247,7 @@ public class NPCAIController : MonoBehaviour
             EventManager.StopListening("AllConversationsHad", AllConversationsHadListener);
             EventManager.StopListening("NpcSpeaking", NpcSpeakingListener);
             EventManager.StopListening("LastConversationEnded", EndLastConversation);
-            EventManager.StartListening("GUILerp", GUIListener);
+            EventManager.StopListening("GUILerp", GUIListener);
             Destroy(gameObject);
         }
 
@@ -299,7 +304,6 @@ public class NPCAIController : MonoBehaviour
     }
 
     public void StartConversation(Dictionary<string, object> message) {
-        Debug.Log("START CONVO CALLED");
         if (has_conversation) {
             if (GameObject.ReferenceEquals((GameObject) message["npc"], gameObject)) {
                 Debug.Log("STARTING CONVERSATION");
@@ -332,7 +336,8 @@ public class NPCAIController : MonoBehaviour
                     EventManager.TriggerEvent("ConversationStarted", 
                                 new Dictionary<string, object> {
                                     { "npc", "regular" },
-                                    { "object", gameObject}
+                                    { "object", gameObject},
+                                    { "gender", gender}
                                 });
                 }
 
@@ -365,7 +370,7 @@ public class NPCAIController : MonoBehaviour
 
     IEnumerator LeaveIntoBuilding() {
         Debug.Log("In coroutine");
-        yield return new WaitForSeconds(3.0f);
+        yield return new WaitForSeconds(8.0f);
 
         Debug.Log("after seconds");
         last_npc_destination_distance = 0.0f;
@@ -384,6 +389,7 @@ public class NPCAIController : MonoBehaviour
 
     void NpcActionListener(Dictionary<string, object> message) {
         Debug.Log("NpcActionListener");
+        Debug.Log((string) message["function"]);
         // last_npc_actions[(string) message["function"]]();
         if ((string) message["function"] == "gotofirstdoor" && is_last_npc) {
             GoToFirstDoor();
@@ -399,9 +405,16 @@ public class NPCAIController : MonoBehaviour
             ChangeRotateTarget("rotateplayer");
         } else if ((string) message["function"] == "stopstains" && is_overman) {
             listening = true;
+            m_Animator.SetBool("scratching", false);
+            m_Animator.SetBool("looking", false);
+            
             EventManager.TriggerEvent("ActionCompleted", null);
         } else if ((string) message["function"] == "startstains" && is_overman) {
             listening = false;
+            EventManager.TriggerEvent("ActionCompleted", null);
+        } else if ((string) message["function"] == "stopnpcspawning") {
+            Debug.Log("CALLED ACTION SHIT");
+            EventManager.TriggerEvent("stopnpcspawning", null);
             EventManager.TriggerEvent("ActionCompleted", null);
         }
     }

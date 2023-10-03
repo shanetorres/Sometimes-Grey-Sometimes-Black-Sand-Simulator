@@ -72,21 +72,21 @@ public class StormManager : MonoBehaviour
     void StartStorm(Dictionary<string, object> message) {
         debris_ps.Play();
         debris_main.simulationSpeed = 3;
-        StartCoroutine(LerpMaxParticles(5000, 90.0f, debris_main));
+        StartCoroutine(LerpMaxParticles(3000, 60.0f, debris_main));//3000
         StartCoroutine(LerpSpeed(7, 60.0f, debris_main));
         tumbleweed_ps.Play();
         tumbleweed_main.simulationSpeed = 2;
-        StartCoroutine(LerpMaxParticles(10, 90.0f, tumbleweed_main));
+        StartCoroutine(LerpMaxParticles(10, 60.0f, tumbleweed_main));
         StartCoroutine(LerpSpeed(4, 60.0f, tumbleweed_main));
         wind_main.simulationSpeed = 2;
         var emission = wind_ps.emission;
-        emission.rateOverTime = 1000;
+        emission.rateOverTime = 1000; //1000
         wind_ps.Play();
-        StartCoroutine(LerpMaxParticles(7000, 90.0f, wind_main));
+        StartCoroutine(LerpMaxParticles(7000, 60.0f, wind_main)); //7000
         StartCoroutine(LerpSpeed(10, 60.0f, wind_main));
         leaf_ps.Play();
         leaf_main.simulationSpeed = 1;
-        StartCoroutine(LerpMaxParticles(5000, 90.0f, leaf_main));
+        StartCoroutine(LerpMaxParticles(2000, 60.0f, leaf_main)); //2000
         StartCoroutine(LerpSpeed(6, 60.0f, leaf_main));
     }
 
